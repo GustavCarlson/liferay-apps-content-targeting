@@ -19,7 +19,6 @@ import com.liferay.content.targeting.portlet.util.QueryRule;
 import com.liferay.portal.kernel.lar.DataLevel;
 import com.liferay.portal.kernel.lar.DefaultConfigurationPortletDataHandler;
 import com.liferay.portal.kernel.lar.PortletDataContext;
-import com.liferay.portal.kernel.lar.PortletDataException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -103,12 +102,8 @@ public abstract class BaseContentTargetingDisplayPortletDataHandler
 			portletDataContext.addReferenceElement(
 				portlet, rootElement,
 				new AssetEntryReferencedStagedModel(assetEntry),
-				PortletDataContext.REFERENCE_TYPE_DEPENDENCY, false);
-
-			return;
+				PortletDataContext.REFERENCE_TYPE_WEAK, true);
 		}
-
-		throw new PortletDataException();
 	}
 
 	protected PortletPreferences updateExportPortletPreferences(

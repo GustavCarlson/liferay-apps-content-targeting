@@ -95,7 +95,7 @@ public class ContentTrackingAction extends BaseTrackingAction {
 			portletDataContext.addReferenceElement(
 				campaign, campaignElement,
 				new AssetEntryReferencedStagedModel(assetEntry),
-				PortletDataContext.REFERENCE_TYPE_DEPENDENCY, true);
+				PortletDataContext.REFERENCE_TYPE_WEAK, true);
 
 			return;
 		}
