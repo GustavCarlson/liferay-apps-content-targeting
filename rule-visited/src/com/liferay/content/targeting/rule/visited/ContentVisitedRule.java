@@ -30,6 +30,7 @@ import com.liferay.content.targeting.util.WebKeys;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.PortletDataException;
+import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.Constants;
@@ -119,10 +120,23 @@ public class ContentVisitedRule extends BaseRule {
 		if (assetEntry != null) {
 			ruleInstance.setTypeSettings(assetEntry.getClassUuid());
 
-			portletDataContext.addReferenceElement(
-				userSegment, userSegmentElement,
-				new AssetEntryReferencedStagedModel(assetEntry),
-				PortletDataContext.REFERENCE_TYPE_WEAK, true);
+			AssetEntryReferencedStagedModel assetEntryReferencedStagedModel =
+				new AssetEntryReferencedStagedModel(assetEntry);
+
+			try {
+				StagedModelDataHandlerUtil.exportReferenceStagedModel(
+					portletDataContext, ruleInstance, ruleInstanceElement,
+					new AssetEntryReferencedStagedModel(assetEntry),
+					AssetEntryReferencedStagedModel.class,
+					PortletDataContext.REFERENCE_TYPE_WEAK);
+			}
+			catch (UnsupportedOperationException uoe) {
+				portletDataContext.addReferenceElement(
+					ruleInstance, ruleInstanceElement,
+					assetEntryReferencedStagedModel,
+					AssetEntryReferencedStagedModel.class,
+					PortletDataContext.REFERENCE_TYPE_WEAK, true);
+			}
 
 			return;
 		}
@@ -167,6 +181,10 @@ public class ContentVisitedRule extends BaseRule {
 			PortletDataContext portletDataContext, UserSegment userSegment,
 			RuleInstance ruleInstance)
 		throws Exception {
+
+		StagedModelDataHandlerUtil.importReferenceStagedModels(
+			portletDataContext, ruleInstance,
+			AssetEntryReferencedStagedModel.class);
 
 		String classUuid = ruleInstance.getTypeSettings();
 

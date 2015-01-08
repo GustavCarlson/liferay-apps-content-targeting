@@ -26,6 +26,9 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.service.ServiceContext;
 
@@ -78,7 +81,15 @@ public class TrackingActionInstanceStagedModelDataHandler
 					trackingActionInstance.getTrackingActionKey());
 
 			if (trackingAction != null) {
-				trackingAction.deleteData(trackingActionInstance);
+				try {
+					trackingAction.deleteData(trackingActionInstance);
+				}
+				catch (Exception e) {
+					_log.error(
+						"Cannot delete tracking action " +
+							trackingAction.getName(LocaleUtil.getDefault()),
+						e);
+				}
 			}
 
 			TrackingActionInstanceLocalServiceUtil.deleteTrackingActionInstance(
@@ -111,9 +122,18 @@ public class TrackingActionInstanceStagedModelDataHandler
 			Element campaignElement = portletDataContext.getExportDataElement(
 				campaign);
 
-			trackingAction.exportData(
-				portletDataContext, campaignElement, campaign,
-				trackingActionInstanceElement, trackingActionInstance);
+			try {
+				trackingAction.exportData(
+					portletDataContext, campaignElement, campaign,
+					trackingActionInstanceElement, trackingActionInstance);
+			}
+			catch (Exception e) {
+				_log.error(
+					"Cannot export tracking action " +
+						trackingAction.getName(LocaleUtil.getDefault()) +
+							" in campaign" + campaign.getName(),
+					e);
+			}
 		}
 
 		portletDataContext.addClassedModel(
@@ -136,8 +156,16 @@ public class TrackingActionInstanceStagedModelDataHandler
 			Campaign campaign = CampaignLocalServiceUtil.getCampaign(
 				trackingActionInstance.getCampaignId());
 
-			trackingAction.importData(
-				portletDataContext, campaign, trackingActionInstance);
+			try {
+				trackingAction.importData(
+					portletDataContext, campaign, trackingActionInstance);
+			}
+			catch (Exception e) {
+				_log.error(
+					"Cannot export tracking action " +
+						trackingAction.getName(LocaleUtil.getDefault()) +
+							" in campaign" + campaign.getName());
+			}
 		}
 
 		long userId = portletDataContext.getUserId(
@@ -178,6 +206,9 @@ public class TrackingActionInstanceStagedModelDataHandler
 
 		return true;
 	}
+
+	private static Log _log = LogFactoryUtil.getLog(
+		TrackingActionInstanceStagedModelDataHandler.class);
 
 	private TrackingActionsRegistry _trackingActionsRegistry;
 
